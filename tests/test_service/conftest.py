@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.repository import Repository
-from api.service import Service
+from api.service.user import UserService
 
 
 @pytest.fixture
@@ -12,5 +12,5 @@ def repository(mocker: MockerFixture) -> Repository:
 
 
 @pytest.fixture
-def service(repository: Repository) -> Service:
-    return Service(repository=repository)
+def user_service(repository: Repository) -> UserService:
+    return UserService(repository=repository)

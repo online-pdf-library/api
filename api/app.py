@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
-from api.api import router
+from api import api, middlewares
 
 app = FastAPI()
 
-app.include_router(router=router)
+
+api.include_routers(app)
+middlewares.add_middlewares(app)

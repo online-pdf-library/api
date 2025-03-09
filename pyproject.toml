@@ -33,11 +33,13 @@ dependencies = [
     "pyjwt==2.10.*",
     "passlib[bcrypt]==1.7.*",
     "types-pytz==2025.1.*",
+    "python-multipart>=0.0.20",
 ]
 
 [dependency-groups]
 dev = [
     "faker==36.1.*",
+    "freezegun==1.5.*",
     "pre-commit==4.1.*",
     "pytest==8.3.*",
     "pytest-asyncio==0.25.*",

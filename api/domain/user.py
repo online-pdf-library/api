@@ -3,37 +3,19 @@ import uuid
 from datetime import datetime
 
 import pytz
-from pydantic import AfterValidator, BaseModel, EmailStr, Field, ValidationInfo
+from pydantic import BaseModel, EmailStr, Field
 
-from api.domain.base import DomainModel
-
-
-def validate_timezone(v: str, _: ValidationInfo) -> str:
-    timezone = pytz.timezone(zone=v).zone
-    if timezone is None:
-        raise ValueError(f'"{v}" is an invalid timezone')
-    return timezone
+from api.config import config
+from api.domain import base, validators
 
 
-def validate_datetime(v: datetime | None, _: ValidationInfo) -> datetime | None:
-    if v is None:
-        return None
-    if v.tzinfo is None:
-        return v.replace(tzinfo=pytz.utc)
-    return v.astimezone(tz=pytz.utc)
-
-
-class User(DomainModel):
+class User(base.DomainModel):
     id: uuid.UUID = Field(default_factory=lambda: uuid.uuid4())
     email: EmailStr
     password_hash: str
-    timezone: typing.Annotated[str, AfterValidator(validate_timezone)] = "Etc/UTC"
-    created_at: typing.Annotated[datetime, AfterValidator(validate_datetime)] = Field(
-        default_factory=lambda: datetime.now(pytz.utc),
-    )
-    updated_at: typing.Annotated[datetime, AfterValidator(validate_datetime)] = Field(
-        default_factory=lambda: datetime.now(pytz.utc),
-    )
+    timezone: validators.Timezone = config.timezone
+    created_at: validators.Datetime = Field(default_factory=lambda: datetime.now(pytz.utc))
+    updated_at: validators.Datetime = Field(default_factory=lambda: datetime.now(pytz.utc))
 
 
 class APIUser(BaseModel):
@@ -45,12 +27,12 @@ class APIUser(BaseModel):
 
 
 class UserCreateData(BaseModel):
-    email: str
-    password_hash: str
-    timezone: str
+    email: EmailStr
+    password: validators.Password = Field(exclude=True)
+    timezone: validators.Timezone = config.timezone
 
 
-class UserUpdateData(typing.TypedDict):
+class UserUpdateData(typing.TypedDict, total=False):
     timezone: str
 
 

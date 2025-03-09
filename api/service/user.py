@@ -1,6 +1,6 @@
 import uuid
 
-from api import domain, errors, pagination
+from api import domain, errors, order_by, pagination, security
 from api.repository import Repository
 
 
@@ -13,7 +13,10 @@ class UserService:
         if user is not None:
             raise errors.AlreadyExistsError
 
-        user = domain.User(**data.model_dump())
+        user = domain.User(
+            **data.model_dump(),
+            password_hash=security.get_password_hash(password=data.password),
+        )
 
         async with self._repo.transaction():
             await self._repo.user.save(user=user)
@@ -39,7 +42,7 @@ class UserService:
         self,
         filter_: domain.UserGetManyFilter,
         paging: pagination.PaginationRequest,
-        ordering: domain.UserOrderBy,
+        ordering: order_by.UserOrderBy,
     ) -> pagination.Page[domain.User]:
         return await self._repo.user.get_many(filter_=filter_, paging=paging, ordering=ordering)
 

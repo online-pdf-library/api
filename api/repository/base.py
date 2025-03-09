@@ -1,21 +1,21 @@
 from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api import domain, pagination
+from api import order_by, pagination
 
 
 class BaseRepository:
     def __init__(self, session: AsyncSession) -> None:
-        self._s = session
+        self._session = session
 
     async def _paginate[T](
         self,
         stmt: Select[tuple[T]],
         paging: pagination.PaginationRequest,
-        ordering: domain.OrderBy[T],
+        ordering: order_by.OrderBy[T],
     ) -> pagination.Page[T]:
         total_stmt = select(func.count()).select_from(stmt.subquery())
-        total = (await self._s.execute(total_stmt)).scalar_one()
+        total = (await self._session.execute(total_stmt)).scalar_one()
 
         max_page = max(0, (total - 1)) // paging.page_size
 
@@ -27,7 +27,7 @@ class BaseRepository:
 
         stmt = stmt.offset(paging.page_size * real_page).limit(paging.page_size)
 
-        entries = (await self._s.execute(stmt)).scalars().all()
+        entries = (await self._session.execute(stmt)).scalars().all()
 
         return pagination.Page(
             entries,

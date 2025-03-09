@@ -1,7 +1,7 @@
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 
-from api import domain, models, pagination
+from api import domain, models, order_by, pagination
 from api.repository.base import BaseRepository
 
 
@@ -9,7 +9,7 @@ class UserRepository(BaseRepository):
     async def save(self, user: domain.User) -> None:
         stmt = insert(models.User).values(self._user_domain_to_model(user).to_dict())
 
-        await self._s.execute(
+        await self._session.execute(
             stmt.on_conflict_do_update(
                 index_elements=["id"],
                 set_=dict(stmt.excluded),
@@ -24,14 +24,14 @@ class UserRepository(BaseRepository):
         if "email" in filter_:
             stmt = stmt.where(models.User.email == filter_.get("email"))
 
-        user = (await self._s.execute(stmt)).scalar_one_or_none()
+        user = (await self._session.execute(stmt)).scalar_one_or_none()
         return self._user_model_to_domain(user) if user else None
 
     async def get_many(
         self,
         filter_: domain.UserGetManyFilter,  # noqa: ARG002
         paging: pagination.PaginationRequest,
-        ordering: domain.UserOrderBy,
+        ordering: order_by.UserOrderBy,
     ) -> pagination.Page[domain.User]:
         stmt = select(models.User)
 
@@ -51,7 +51,7 @@ class UserRepository(BaseRepository):
         if "email" in filter_:
             stmt = stmt.where(models.User.email == filter_.get("email"))
 
-        await self._s.execute(stmt)
+        await self._session.execute(stmt)
 
     @staticmethod
     def _user_model_to_domain(user: models.User) -> domain.User:
