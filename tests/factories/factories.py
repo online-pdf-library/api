@@ -8,6 +8,7 @@ from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api import models
+from api.config import config
 
 faker = Faker()
 
@@ -64,7 +65,7 @@ class UserFactory(ModelFactory[models.User]):
     email = ModelFactoryAttribute(lambda: faker.email())
     password_hash = ModelFactoryAttribute(lambda: faker.password())
 
-    timezone = ModelFactoryAttribute("Etc/UTC")
+    timezone = ModelFactoryAttribute(config.timezone)
 
     created_at = ModelFactoryAttribute(lambda: faker.date_time(tzinfo=pytz.utc))
     updated_at = ModelFactoryAttribute(lambda: faker.date_time(tzinfo=pytz.utc))

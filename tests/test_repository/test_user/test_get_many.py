@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytz
 
-from api import domain, pagination
+from api import domain, order_by, pagination
 from api.repository.user import UserRepository
 from tests import factories
 
@@ -15,7 +15,7 @@ async def test_many_users_retrieved_successfully(
     users = await user_repository.get_many(
         filter_=domain.UserGetManyFilter(),
         paging=pagination.PaginationRequest(),
-        ordering=domain.UserOrderBy(),
+        ordering=order_by.UserOrderBy(),
     )
 
     assert len(users) == len(db_users)
@@ -29,7 +29,7 @@ async def test_many_users_retrieved_with_paging_successfully(
         await factories.UserFactory.create_batch(11),
         key=lambda x: x.created_at,
     )
-    ordering = domain.UserOrderBy(created_at_asc=True)
+    ordering = order_by.UserOrderBy(created_at_asc=True)
 
     users = await user_repository.get_many(
         filter_=domain.UserGetManyFilter(),
@@ -97,7 +97,7 @@ async def test_page_reset_to_zero_on_ordering_change(user_repository: UserReposi
         key=lambda x: x.created_at,
     )
 
-    ordering = domain.UserOrderBy(created_at_asc=True)
+    ordering = order_by.UserOrderBy(created_at_asc=True)
 
     users = await user_repository.get_many(
         filter_=domain.UserGetManyFilter(),
@@ -116,7 +116,7 @@ async def test_page_reset_to_zero_on_ordering_change(user_repository: UserReposi
         has_next_page=True,
     )
 
-    ordering = domain.UserOrderBy(created_at_desc=True)
+    ordering = order_by.UserOrderBy(created_at_desc=True)
 
     users = await user_repository.get_many(
         filter_=domain.UserGetManyFilter(),
@@ -153,11 +153,11 @@ async def test_many_users_retrieved_with_ordering_successfully(
     )
 
     cases = [
-        (domain.UserOrderBy(), [2, 1, 0], [0, 1, 2]),
-        (domain.UserOrderBy(created_at_desc=True), [2, 1, 0], [0, 1, 2]),
-        (domain.UserOrderBy(created_at_asc=True), [0, 1, 2], [2, 1, 0]),
-        (domain.UserOrderBy(updated_at_desc=True), [0, 1, 2], [2, 1, 0]),
-        (domain.UserOrderBy(updated_at_asc=True), [2, 1, 0], [0, 1, 2]),
+        (order_by.UserOrderBy(), [2, 1, 0], [0, 1, 2]),
+        (order_by.UserOrderBy(created_at_desc=True), [2, 1, 0], [0, 1, 2]),
+        (order_by.UserOrderBy(created_at_asc=True), [0, 1, 2], [2, 1, 0]),
+        (order_by.UserOrderBy(updated_at_desc=True), [0, 1, 2], [2, 1, 0]),
+        (order_by.UserOrderBy(updated_at_asc=True), [2, 1, 0], [0, 1, 2]),
     ]
 
     for ordering, created_at_order, updated_at_order in cases:

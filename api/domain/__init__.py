@@ -1,5 +1,4 @@
-from .auth import AuthToken, AuthTokenPayload, SignInData
-from .order_by import OrderBy, UserOrderBy
+from .auth import AuthToken, AuthTokenPayload, SignInData, SignUpData
 from .user import (
     APIUser,
     User,
@@ -14,13 +13,12 @@ __all__ = [
     "APIUser",
     "AuthToken",
     "AuthTokenPayload",
-    "OrderBy",
     "SignInData",
+    "SignUpData",
     "User",
     "UserCreateData",
     "UserDeleteFilter",
     "UserGetFilter",
     "UserGetManyFilter",
-    "UserOrderBy",
     "UserUpdateData",
 ]

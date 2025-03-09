@@ -19,6 +19,7 @@ async def test_commit_changes(
             await db_session.execute(select(models.User).where(models.User.id == user.id))
         ).scalar_one_or_none() is not None
 
+    await db_session.commit()
     await db_session.reset()
 
     assert (

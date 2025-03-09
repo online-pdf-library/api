@@ -10,7 +10,8 @@ from api.service.user import UserService
 
 @pytest.fixture(autouse=True)
 def mocks(mocker: MockerFixture, repository: Repository) -> None:
-    mocker.patch.object(repository.user, "get", autospec=True)
+    mocker.patch.object(repository.user, "delete", autospec=True)
+    mocker.patch.object(repository, "transaction", autospec=True)
 
 
 async def test_user_repository_called_with_correct_arguments(
@@ -18,8 +19,8 @@ async def test_user_repository_called_with_correct_arguments(
     user_service: UserService,
     user: domain.User,
 ) -> None:
-    filter_ = domain.UserGetFilter(id=user.id, email=user.email)
+    filter_ = domain.UserDeleteFilter(id=user.id, email=user.email)
 
-    await user_service.get(filter_=filter_)
+    await user_service.delete(filter_=filter_)
 
-    typing.cast(MockType, repository.user.get).assert_awaited_once_with(filter_=filter_)
+    typing.cast(MockType, repository.user.delete).assert_awaited_once_with(filter_=filter_)

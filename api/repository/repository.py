@@ -14,7 +14,7 @@ class Repository:
 
     @contextlib.asynccontextmanager
     async def transaction(self) -> typing.AsyncGenerator[None, None]:
-        t = await self._s.begin()
+        t = await self._s.begin_nested()
         try:
             yield
         except:

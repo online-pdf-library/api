@@ -1,6 +1,8 @@
+import string
 import typing
 from datetime import timedelta
 
+import pytz
 from pydantic import AfterValidator, BaseModel, Field, ValidationInfo
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,8 +24,9 @@ def build_db_url(_: str, info: ValidationInfo) -> str:
 class AuthConfig(BaseModel):
     secret_key: str
     algorithm: str = "HS256"
-    token_url: str = Field(default="sign-in")
-    token_expire: timedelta = timedelta(minutes=30)
+    access_token_expire: timedelta = timedelta(minutes=30)
+    refresh_token_expire: timedelta = timedelta(days=30)
+    refresh_token_cookie_key: str = Field(default="refresh_token")
 
 
 class AppConfig(BaseModel):
@@ -47,6 +50,17 @@ class PaginationConfig(BaseModel):
     default_page_size: int = 25
 
 
+class PasswordConfig(BaseModel):
+    min_len: int = 10
+    max_len: int = 128
+    allowed_characters: set[str] = set(
+        string.ascii_lowercase
+        + string.ascii_uppercase
+        + string.digits
+        + r"!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~",
+    )
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
@@ -58,6 +72,10 @@ class Config(BaseSettings):
     pagination: PaginationConfig = PaginationConfig()
 
     auth: AuthConfig = Field(default=...)
+
+    password: PasswordConfig = PasswordConfig()
+
+    timezone: str = str(pytz.utc)
 
 
 config = Config()
